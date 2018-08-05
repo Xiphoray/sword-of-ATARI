@@ -2,7 +2,7 @@
 
 import math
 import pygame
-from pygame.locals import *
+from pygame.locals import Rect
 from sys import exit
 import sys
 
@@ -140,7 +140,8 @@ class Blank(pygame.sprite.Sprite):
 		self.image = pygame.Surface([680, 10])
 		self.image.fill((248, 248, 255))
 		self.image.set_alpha(50)
-		self.rect = pygame.draw.rect(self.image, (248, 248, 255), (0, start, 680, 10))
+		self.rect = pygame.draw.rect(
+			self.image, (248, 248, 255), (0, start, 680, 10))
 		self.mask = pygame.mask.from_surface(self.image)
 		self.last_time = 0
 		self.flash = flash
@@ -236,6 +237,9 @@ charagroup.add(chara)
 while (True):
 
 	screen.fill([30, 144, 255])
+	my_font = pygame.font.Font("font.ttf", 25)
+	text_screen = my_font.render("0 0 0 0 0 0", False, (0, 0, 0))
+	screen.blit(text_screen, (260, 450))
 	map.wallgroup.draw(screen)
 	time_passed = framerate.tick(30)
 	time_passed_seconds = time_passed / 10.0
@@ -263,6 +267,9 @@ while (True):
 		while (True):
 			backtogame = False
 			screen.fill([30, 144, 255])
+			my_font = pygame.font.Font("font.ttf", 25)
+			text_screen = my_font.render("0 0 0 0 0 0", False, (0, 0, 0))
+			screen.blit(text_screen, (260, 450))
 			map.wallgroup.draw(screen)
 			time_passed = framerate.tick(30)
 			time_passed_seconds = time_passed / 10.0
