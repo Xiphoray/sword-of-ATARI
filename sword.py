@@ -254,38 +254,46 @@ while (True):
 	blankgroup.draw(screen)
 	if map.gameovercheck(chara.P_x, chara.P_y):
 		Gameover = True
-		break
+		chara.P_x = screen.get_width() / 2 - 48
+		chara.P_y = screen.get_height() / 2 - 96
+		chara.Move_up = False
+		chara.Move_left = False
+		chara.Move_right = False
+		chara.speed = 10
+		while (True):
+			backtogame = False
+			screen.fill([30, 144, 255])
+			map.wallgroup.draw(screen)
+			time_passed = framerate.tick(30)
+			time_passed_seconds = time_passed / 10.0
+			ticks = pygame.time.get_ticks()
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					exit()
+				if(event.type == pygame.KEYDOWN):
+					if(event.key == pygame.K_SPACE):
+						backtogame = True
+			if backtogame:
+				chara.P_x = screen.get_width() / 2 - 48
+				chara.P_y = screen.get_height() / 2 - 96
+				chara.Move_down = False
+				chara.speed = 4
+				break
+
+			chara.Move_down = True
+			chara.move()
+			if(chara.P_y > 370):
+				chara.P_y = 0
+			charagroup.update(ticks)
+			charagroup.draw(screen)
+			blankgroup.update(ticks)
+			blankgroup.draw(screen)
+			pygame.display.update()
+
 	if(chara.P_x > 580 and (chara.P_y > 140 and chara.P_y < 180)):
 		break
 	pygame.display.update()
 
-if Gameover:
-	chara.P_x = screen.get_width() / 2 - 48
-	chara.P_y = screen.get_height() / 2 - 96
-	chara.Move_up = False
-	chara.Move_left = False
-	chara.Move_right = False
-	chara.speed = 10
-	while (True):
-		screen.fill([30, 144, 255])
-		map.wallgroup.draw(screen)
-		time_passed = framerate.tick(30)
-		time_passed_seconds = time_passed / 10.0
-		ticks = pygame.time.get_ticks()
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				exit()
-
-		chara.Move_down = True
-
-		chara.move()
-		if(chara.P_y > 370):
-			chara.P_y = 0
-		charagroup.update(ticks)
-		charagroup.draw(screen)
-		blankgroup.update(ticks)
-		blankgroup.draw(screen)
-		pygame.display.update()
 
 while True:
 	screen.fill([30, 144, 255])
