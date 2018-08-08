@@ -12,7 +12,7 @@ global time_passed_seconds
 class Chara(pygame.sprite.Sprite):
 	def __init__(self):
 		pygame.sprite.Sprite.__init__(self)
-		self.jumphigh = 150
+		self.jumphigh = 120
 		self.Move_jump = 0
 		self.Move_left = False
 		self.Move_right = False
@@ -231,8 +231,28 @@ class Map1:
 			return False
 
 
+class Cloud(pygame.sprite.Sprite):
+	def __init__(self, color, place):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = pygame.Surface([place[2], place[3]])
+		self.image.fill(color)
+		self.rect = pygame.draw.rect(self.image, color, place)
+		self.mask = pygame.mask.from_surface(self.image)
+
+
 class Map2:
 	def __init__(self):
+		self.cloudgroup1 = pygame.sprite.Group()
+		self.cloudgroup1.add(Cloud((225, 225, 225), (180, 300, 60, 40)))
+		self.cloudgroup1.add(Cloud((225, 225, 225), (200, 260, 80, 40)))
+		self.cloudgroup1.add(Cloud((225, 225, 225), (260, 300, 60, 40)))
+		self.cloudgroup2 = pygame.sprite.Group()
+		self.cloudgroup1.add(Cloud((225, 225, 225), (400, 220, 60, 40)))
+		self.cloudgroup1.add(Cloud((225, 225, 225), (420, 180, 80, 40)))
+		self.cloudgroup1.add(Cloud((225, 225, 225), (480, 220, 60, 40)))
+		self.allcloudgroup = pygame.sprite.Group()
+		self.allcloudgroup.add(self.cloudgroup1)
+		self.allcloudgroup.add(self.cloudgroup2)
 		self.wallgroup = pygame.sprite.Group()
 		self.wallgroup.add(Wall((225, 225, 225), (20, 0, 30, 400)))
 		self.wallgroup.add(Wall((225, 225, 225), (630, 0, 30, 400)))
@@ -357,6 +377,7 @@ while True:
 	text_screen = my_font.render("0 0 0 0 0 0", False, (0, 0, 0))
 	screen.blit(text_screen, (260, 450))
 	map.wallgroup.draw(screen)
+	map.allcloudgroup.draw(screen)
 	time_passed = framerate.tick(30)
 	time_passed_seconds = time_passed / 10.0
 	ticks = pygame.time.get_ticks()
