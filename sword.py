@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import math
 import pygame
 from pygame.locals import Rect
 from sys import exit
@@ -13,6 +12,7 @@ global time_passed_seconds
 class Chara(pygame.sprite.Sprite):
 	def __init__(self):
 		pygame.sprite.Sprite.__init__(self)
+		self.jumphigh = 150
 		self.Move_jump = 0
 		self.Move_left = False
 		self.Move_right = False
@@ -36,6 +36,9 @@ class Chara(pygame.sprite.Sprite):
 		self.last_time = 0
 		self.direction = 0
 		self.speed = 4
+		self.orgin_y = self.P_y
+		self.jumpspeed = 0
+		self.jumpset = 0
 
 	def load(self, filename, width, height, columns):
 		self.master_image = pygame.image.load(filename)
@@ -67,19 +70,29 @@ class Chara(pygame.sprite.Sprite):
 	def move(self):
 		distance = self.speed * time_passed_seconds
 
-		if (self.Move_jump == 1) & (self.P_y == 150):
-			self.P_y -= distance
-		elif (self.Move_jump == 1) & (150 > self.P_y > 90):
-			self.P_y -= distance
-		elif self.P_y == 90:
+		if (self.Move_jump == 4):
+			self.orgin_y = self.P_y
+			self.jumpspeed = self.jumphigh / (time_passed_seconds * 36)
+			self.jumpset = 8
+			self.Move_jump = 1
+		elif (self.Move_jump == 1) and (self.orgin_y == self.P_y):
+			self.P_y -= self.jumpspeed * time_passed_seconds * self.jumpset
+			self.jumpset -= 1
+		elif (self.Move_jump == 1) & (self.orgin_y > self.P_y) & (self.jumpset > 0):
+			self.P_y -= self.jumpspeed * time_passed_seconds * self.jumpset
+			self.jumpset -= 1
+		elif (self.Move_jump == 1) & (self.jumpset == 0):
 			self.Move_jump = 2
-			self.P_y += distance
-		elif (self.Move_jump == 2) & (150 > self.P_y > 90):
-			self.P_y += distance
-		elif (self.Move_jump == 2) & (150 == self.P_y):
+			self.jumpset += 1
+			self.P_y += self.jumpspeed * time_passed_seconds * self.jumpset
+		elif (self.Move_jump == 2) & (self.jumpset < 8) & (self.P_y > self.orgin_y - self.jumphigh):
+			self.jumpset += 1
+			self.P_y += self.jumpspeed * time_passed_seconds * self.jumpset
+		elif (self.Move_jump == 2) & (self.jumpset == 8):
+			self.P_y = self.orgin_y
 			self.Move_jump = 0
 
-		elif self.Move_left:
+		if self.Move_left:
 			if(self.P_x >= distance):
 				self.P_x -= distance
 
@@ -107,7 +120,7 @@ class Chara(pygame.sprite.Sprite):
 					self.Move_left = True
 				if(Stage == 2):
 					if(event.key == pygame.K_w) & (self.Move_jump == 0):
-						self.Move_jump = 1
+						self.Move_jump = 4
 				elif(Stage == 1):
 					if(event.key == pygame.K_w):
 						self.Move_up = True
@@ -176,33 +189,33 @@ class Map1:
 		self.wallgroup.add(Wall((0, 0, 0), (380, 310, 270, 120)))
 
 	def checkup(self, x, y):
-		if(y < 75 and (x < 280 or x > 340)):
+		if(y < 75 and y > 55 and (x < 280 or x > 340)):
 			return True
-		elif((x < 110 or x > 520) and y < 160):
+		elif((x < 110 or x > 520) and (y < 160 and y > 140)):
 			return True
 		else:
 			return False
 
 	def checkdown(self, x, y):
-		if(y > 240 and (x < 280 or x > 340)):
+		if(y > 240 and y < 260 and (x < 280 or x > 340)):
 			return True
-		elif((x < 110 or x > 520) and y > 180):
+		elif((x < 110 or x > 520) and y > 180 and y < 200):
 			return True
 		else:
 			return False
 
 	def checkleft(self, x, y):
-		if(x < 280 and (y < 75 or y > 220)):
+		if(x < 280 and x > 260 and (y < 75 or y > 220)):
 			return True
-		elif(x < 110 and (y < 140 or y > 180)):
+		elif(x < 110 and x > 90 and (y < 140 or y > 180)):
 			return True
 		else:
 			return False
 
 	def checkright(self, x, y):
-		if(x > 340 and (y < 75 or y > 220)):
+		if(x > 340 and x < 360 and (y < 75 or y > 220)):
 			return True
-		elif(x > 520 and (y < 140 or y > 180)):
+		elif(x > 520 and x < 540 and (y < 140 or y > 180)):
 			return True
 		else:
 			return False
@@ -216,6 +229,34 @@ class Map1:
 			return True
 		else:
 			return False
+
+
+class Map2:
+	def __init__(self):
+		self.wallgroup = pygame.sprite.Group()
+		self.wallgroup.add(Wall((225, 225, 225), (20, 0, 30, 400)))
+		self.wallgroup.add(Wall((225, 225, 225), (630, 0, 30, 400)))
+		self.wallgroup.add(Wall((225, 225, 225), (20, 390, 640, 30)))
+
+		self.wallgroup.add(Wall((0, 0, 0), (20, 0, 100, 80)))
+		self.wallgroup.add(Wall((0, 0, 0), (200, 0, 280, 80)))
+		self.wallgroup.add(Wall((0, 0, 0), (560, 0, 100, 80)))
+		self.wallgroup.add(Wall((0, 0, 0), (20, 400, 640, 30)))
+
+	def checkup(self, x, y):
+		return False
+
+	def checkdown(self, x, y):
+		return False
+
+	def checkleft(self, x, y):
+		return False
+
+	def checkright(self, x, y):
+		return False
+
+	def gameovercheck(self, x, y):
+		return False
 
 
 nowpath = sys.path[0] + "\\"
@@ -242,6 +283,7 @@ while (True):
 	screen.blit(text_screen, (260, 450))
 	map.wallgroup.draw(screen)
 	time_passed = framerate.tick(30)
+
 	time_passed_seconds = time_passed / 10.0
 	ticks = pygame.time.get_ticks()
 
@@ -289,24 +331,47 @@ while (True):
 
 			chara.Move_down = True
 			chara.move()
-			if(chara.P_y > 370):
+			if(chara.P_y > 360):
 				chara.P_y = 0
 			charagroup.update(ticks)
 			charagroup.draw(screen)
 			blankgroup.update(ticks)
 			blankgroup.draw(screen)
 			pygame.display.update()
-
+	break
 	if(chara.P_x > 580 and (chara.P_y > 140 and chara.P_y < 180)):
 		break
 	pygame.display.update()
 
-
+map = Map2()
+Stage = 2
+chara.P_x = screen.get_width() - 50 - 48
+chara.P_y = 390 - 96
+chara.Move_down = False
+chara.Move_up = False
+chara.Move_left = False
+chara.Move_right = False
 while True:
 	screen.fill([30, 144, 255])
-	my_font = pygame.font.SysFont(None, 22)
-	text_screen = my_font.render("finish first stage", True, (255, 0, 0))
-	screen.blit(text_screen, (50, 50))
+	my_font = pygame.font.Font("font.ttf", 25)
+	text_screen = my_font.render("0 0 0 0 0 0", False, (0, 0, 0))
+	screen.blit(text_screen, (260, 450))
+	map.wallgroup.draw(screen)
+	time_passed = framerate.tick(30)
+	time_passed_seconds = time_passed / 10.0
+	ticks = pygame.time.get_ticks()
+
+	chara.control(
+		map.checkup(chara.P_x, chara.P_y),
+		map.checkdown(chara.P_x, chara.P_y),
+		map.checkleft(chara.P_x, chara.P_y),
+		map.checkright(chara.P_x, chara.P_y))
+
+	chara.move()
+	charagroup.update(ticks)
+	charagroup.draw(screen)
+	blankgroup.update(ticks)
+	blankgroup.draw(screen)
 	for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				exit()
