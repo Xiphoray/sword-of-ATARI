@@ -38,7 +38,9 @@ class Chara(pygame.sprite.Sprite):
 		self.speed = 4
 		self.orgin_y = self.P_y
 		self.jumpspeed = 0
-		self.jumpset = 0
+		self.jumpset = 0    # 跳跃状态
+		self.jumpgroud = 0  # 起跳后的地板位置
+		self.jumplevel = 0  # 跳跃阶层
 
 	def load(self, filename, width, height, columns):
 		self.master_image = pygame.image.load(filename)
@@ -85,7 +87,7 @@ class Chara(pygame.sprite.Sprite):
 			self.Move_jump = 2
 			self.jumpset += 1
 			self.P_y += self.jumpspeed * time_passed_seconds * self.jumpset
-		elif (self.Move_jump == 2) & (self.jumpset < 8) & (self.P_y > self.orgin_y - self.jumphigh):
+		elif (self.Move_jump == 2) & (self.jumpset < 8):
 			self.jumpset += 1
 			self.P_y += self.jumpspeed * time_passed_seconds * self.jumpset
 		elif (self.Move_jump == 2) & (self.jumpset == 8):
@@ -108,12 +110,15 @@ class Chara(pygame.sprite.Sprite):
 			if(self.P_y <= (screen.get_height() - 96 - distance)):
 				self.P_y += distance
 
-	def control(self, stopup, stopdown, stopleft, stopright):
+	def control(self, stopup, stopdown, stopleft, stopright, stopjump):
 		for event in pygame.event.get():
 
 			if event.type == pygame.QUIT:
 				exit()
 			if(event.type == pygame.KEYDOWN):
+				if(event.key == pygame.K_o):
+					print(self.Move_jump)
+					print(self.P_y >= self.orgin_y - self.jumphigh)
 				if(event.key == pygame.K_d):
 					self.Move_right = True
 				if(event.key == pygame.K_a):
@@ -137,6 +142,30 @@ class Chara(pygame.sprite.Sprite):
 						self.Move_up = False
 					if(event.key == pygame.K_s):
 						self.Move_down = False
+
+		if (Stage == 2):
+			if (self.P_y <= 84):
+				self.jumplevel == 4
+			elif (self.P_y <= 124):
+				self.jumplevel == 3
+			elif (self.P_y <= 164):
+				self.jumplevel == 2
+			elif (self.P_y <= 204):
+				self.jumplevel == 1
+			elif (self.P_y <= 294):
+				self.jumplevel == 0
+
+			if (self.jumplevel == 0):
+				self.ground = 390 - 96
+			elif (self.jumplevel == 1):
+				self.ground = 300 - 96
+			elif (self.jumplevel == 2):
+				self.ground = 260 - 96
+			elif (self.jumplevel == 3):
+				self.ground = 220 - 96
+			elif (self.jumplevel == 4):
+				self.ground = 180 - 96
+
 		if stopup:
 			self.Move_up = False
 		if stopdown:
@@ -145,6 +174,9 @@ class Chara(pygame.sprite.Sprite):
 			self.Move_left = False
 		if stopright:
 			self.Move_right = False
+		if stopjump:
+			self.Move_jump = 0
+			self.P_y = self.jumpgroud
 
 
 class Blank(pygame.sprite.Sprite):
@@ -223,7 +255,7 @@ class Map1:
 	def gameovercheck(self, x, y):
 		if(x < 40 and (y > 140 and y < 180)):
 			return True
-		elif(y > 280 and (x > 280 and x < 340)):
+		elif(y > 340 and (x > 280 and x < 340)):
 			return True
 		elif(y < 30 and (x > 280 and x < 340)):
 			return True
@@ -263,17 +295,32 @@ class Map2:
 		self.wallgroup.add(Wall((0, 0, 0), (560, 0, 100, 80)))
 		self.wallgroup.add(Wall((0, 0, 0), (20, 400, 640, 30)))
 
-	def checkup(self, x, y):
-		return False
-
-	def checkdown(self, x, y):
+	def checkjump(self, x, y):
 		return False
 
 	def checkleft(self, x, y):
-		return False
+		if((y > 160) & (y < 300) & (x > 260) & (x < 280)):
+			return True
+		elif((y > 80) & (y < 220) & (x > 480) & (x < 500)):
+			return True
+		elif((y > 200) & (y < 340) & (x > 300) & (x < 320)):
+			return True
+		elif((y > 120) & (y < 260) & (x > 520) & (x < 540)):
+			return True
+		else:
+			return False
 
 	def checkright(self, x, y):
-		return False
+		if((y > 160) & (y < 300) & (x > 152) & (x < 172)):
+			return True
+		elif((y > 80) & (y < 220) & (x > 372) & (x < 392)):
+			return True
+		elif((y > 200) & (y < 340) & (x > 132) & (x < 152)):
+			return True
+		elif((y > 120) & (y < 260) & (x > 352) & (x < 372)):
+			return True
+		else:
+			return False
 
 	def gameovercheck(self, x, y):
 		return False
@@ -311,7 +358,8 @@ while (True):
 		map.checkup(chara.P_x, chara.P_y),
 		map.checkdown(chara.P_x, chara.P_y),
 		map.checkleft(chara.P_x, chara.P_y),
-		map.checkright(chara.P_x, chara.P_y))
+		map.checkright(chara.P_x, chara.P_y),
+		False)
 
 	chara.move()
 	charagroup.update(ticks)
@@ -383,10 +431,11 @@ while True:
 	ticks = pygame.time.get_ticks()
 
 	chara.control(
-		map.checkup(chara.P_x, chara.P_y),
-		map.checkdown(chara.P_x, chara.P_y),
+		False,
+		False,
 		map.checkleft(chara.P_x, chara.P_y),
-		map.checkright(chara.P_x, chara.P_y))
+		map.checkright(chara.P_x, chara.P_y),
+		map.checkjump(chara.P_x, chara.P_y))
 
 	chara.move()
 	charagroup.update(ticks)
