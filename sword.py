@@ -107,7 +107,7 @@ class Chara(pygame.sprite.Sprite):
 			self.P_y = self.orgin_y
 			self.Move_jump = 0
 
-		if (self.Move_jump == 0) & (self.Move_fall):
+		if (self.Move_jump == 0) & (self.Move_fall) & (Stage == 2):
 			self.P_y += self.fallspeed * time_passed_seconds * self.fallset
 			self.fallset += 1
 
