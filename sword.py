@@ -474,7 +474,6 @@ while (True):
 			blankgroup.update(ticks)
 			blankgroup.draw(screen)
 			pygame.display.update()
-	break
 	if(chara.P_x > 580 and (chara.P_y > 140 and chara.P_y < 180)):
 		break
 	pygame.display.update()
