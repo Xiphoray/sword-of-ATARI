@@ -549,7 +549,7 @@ blankgroup = pygame.sprite.Group()  # 创建雪花屏
 blankgroup.add(Blank(0, 60))
 blankgroup.add(Blank(30, 50))
 map = Map1()  # 创建地图为第一卦地图
-pygame.display.set_caption("fight")  # 界面标题 TODO: 后期要改
+pygame.display.set_caption("sword-of-ATARI")  # 界面标题
 framerate = pygame.time.Clock()  # 设置帧率
 chara = Chara()  # 创建角色
 chara.load("chara.png", 48, 96, 2)
@@ -629,7 +629,6 @@ while (True):
 			pygame.display.update()
 	if(chara.P_x > 580 and (chara.P_y > 140 and chara.P_y < 180)):
 		break
-	break  # TODO: 调试用
 	pygame.display.update()
 
 # 第二卦开始
@@ -669,7 +668,6 @@ while True:
 	blankgroup.draw(screen)
 	if(chara.P_y < 20 and (chara.P_x > 450 and chara.P_x < 560)):
 		break
-	break  # TODO: 调试用
 	pygame.display.update()
 
 Stage = 3
