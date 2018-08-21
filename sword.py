@@ -7,13 +7,14 @@ import sys
 
 global Stage  # 关卡
 global time_passed_seconds  # 刷新周期
+global time_passed_seconds_past
 
 
 # 角色类
 class Chara(pygame.sprite.Sprite):
 	def __init__(self):
 		pygame.sprite.Sprite.__init__(self)
-		self.jumphigh = 120      # 跳跃高度
+		self.jumphigh = 125      # 跳跃高度
 		self.Move_jump = 0       # 跳跃状态
 		self.Move_left = False   # 左移判定
 		self.Move_right = False  # 右移判定
@@ -187,27 +188,27 @@ class Chara(pygame.sprite.Sprite):
 
 			if (self.jumplevel == 0):
 				self.ground = 390 - 96
-				if (self.P_y > 274):
+				if (self.P_y > 274) & (self.fallset != 0):
 					self.fallset = 0
 					self.P_y = self.ground
 			elif (self.jumplevel == 1):
 				self.ground = 300 - 96
-				if((self.P_x < 310) & (self.P_x > 142) & (self.P_y > 184)):
+				if((self.P_x < 310) & (self.P_x > 142) & (self.P_y > 184) & (self.fallset != 0)):
 					self.fallset = 0
 					self.P_y = self.ground
 			elif (self.jumplevel == 2):
 				self.ground = 260 - 96
-				if((self.P_x < 270) & (self.P_x > 162) & (self.P_y > 144)):
+				if((self.P_x < 270) & (self.P_x > 162) & (self.P_y > 144) & (self.fallset != 0)):
 					self.fallset = 0
 					self.P_y = self.ground
 			elif (self.jumplevel == 3):
 				self.ground = 220 - 96
-				if((self.P_x < 530) & (self.P_x > 362) & (self.P_y > 104)):
+				if((self.P_x < 530) & (self.P_x > 362) & (self.P_y > 104) & (self.fallset != 0)):
 					self.fallset = 0
 					self.P_y = self.ground
 			elif (self.jumplevel == 4):
 				self.ground = 180 - 96
-				if((self.P_x < 490) & (self.P_x > 382) & (self.P_y > 64)):
+				if((self.P_x < 490) & (self.P_x > 382) & (self.P_y > 64) & (self.fallset != 0)):
 					self.fallset = 0
 					self.P_y = self.ground
 
@@ -220,7 +221,7 @@ class Chara(pygame.sprite.Sprite):
 			self.Move_left = False
 		if stopright:
 			self.Move_right = False
-		if (stopjump & (self.Move_jump != 0)):
+		if (stopjump & (self.Move_jump == 2)):
 			self.Move_jump = 0
 			self.P_y = self.ground
 
@@ -352,38 +353,38 @@ class Map2:
 		self.wallgroup.add(Wall((0, 0, 0), (20, 400, 640, 30)))
 
 	def checkjump(self, x, y):
-		if((x < 270) & (x > 162) & (y < 160) & (y > 140)):
+		if((x < 259) & (x > 163) & (y < 164) & (y > 140)):
 			return True
-		if((x < 490) & (x > 382) & (y < 80) & (y > 60)):
+		if((x < 479) & (x > 383) & (y < 84) & (y > 60)):
 			return True
-		if((x < 310) & (x > 142) & (y < 200) & (y > 180)):
+		if((x < 299) & (x > 143) & (y < 204) & (y > 180)):
 			return True
-		if((x < 530) & (x > 362) & (y < 120) & (y > 100)):
+		if((x < 519) & (x > 363) & (y < 124) & (y > 100)):
 			return True
 		return False
 
 	# 向左障碍检测
 	def checkleft(self, x, y):
-		if((y > 170) & (y < 300) & (x > 260) & (x < 280)):
+		if((y > 166) & (y < 300) & (x > 260) & (x < 280)):
 			return True
-		elif((y > 90) & (y < 220) & (x > 480) & (x < 500)):
+		elif((y > 86) & (y < 220) & (x > 480) & (x < 500)):
 			return True
-		elif((y > 210) & (y < 340) & (x > 300) & (x < 320)):
+		elif((y > 206) & (y < 340) & (x > 300) & (x < 320)):
 			return True
-		elif((y > 130) & (y < 260) & (x > 520) & (x < 540)):
+		elif((y > 126) & (y < 260) & (x > 520) & (x < 540)):
 			return True
 		else:
 			return False
 
 	# 向右障碍检测
 	def checkright(self, x, y):
-		if((y > 170) & (y < 300) & (x > 152) & (x < 172)):
+		if((y > 166) & (y < 300) & (x > 152) & (x < 162)):
 			return True
-		elif((y > 90) & (y < 220) & (x > 372) & (x < 392)):
+		elif((y > 86) & (y < 220) & (x > 372) & (x < 392)):
 			return True
-		elif((y > 210) & (y < 340) & (x > 132) & (x < 152)):
+		elif((y > 206) & (y < 340) & (x > 132) & (x < 152)):
 			return True
-		elif((y > 130) & (y < 260) & (x > 352) & (x < 372)):
+		elif((y > 126) & (y < 260) & (x > 352) & (x < 372)):
 			return True
 		else:
 			return False
@@ -420,6 +421,9 @@ while (True):
 	time_passed = framerate.tick(30)
 
 	time_passed_seconds = time_passed / 10.0
+	if(time_passed_seconds > 60):
+		time_passed_seconds = time_passed_seconds_past
+	time_passed_seconds_past = time_passed_seconds
 	ticks = pygame.time.get_ticks()
 
 	chara.control(
@@ -451,6 +455,9 @@ while (True):
 			map.wallgroup.draw(screen)
 			time_passed = framerate.tick(30)
 			time_passed_seconds = time_passed / 10.0
+			if(time_passed_seconds > 60):
+				time_passed_seconds = time_passed_seconds_past
+			time_passed_seconds_past = time_passed_seconds
 			ticks = pygame.time.get_ticks()
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -496,6 +503,9 @@ while True:
 	map.allcloudgroup.draw(screen)
 	time_passed = framerate.tick(30)
 	time_passed_seconds = time_passed / 10.0
+	if(time_passed_seconds > 60):
+		time_passed_seconds = time_passed_seconds_past
+	time_passed_seconds_past = time_passed_seconds
 	ticks = pygame.time.get_ticks()
 
 	chara.control(
