@@ -124,8 +124,7 @@ class Chara(pygame.sprite.Sprite):
 
 		# 上移状态
 		elif self.Move_up:
-			if(self.P_y >= distance):
-				self.P_y -= distance
+			self.P_y -= distance
 
 		# 下移状态
 		elif self.Move_down:
@@ -156,7 +155,7 @@ class Chara(pygame.sprite.Sprite):
 					if(event.key == pygame.K_w) & (self.Move_jump == 0):
 						self.Move_jump = 4
 				# 第一关
-				elif(Stage == 1):
+				elif(Stage == 1 or Stage == 3):
 					if(event.key == pygame.K_w):
 						self.Move_up = True
 					if(event.key == pygame.K_s):
@@ -167,7 +166,7 @@ class Chara(pygame.sprite.Sprite):
 					self.Move_right = False
 				if(event.key == pygame.K_a):
 					self.Move_left = False
-				if(Stage == 1):
+				if(Stage == 1 or Stage == 3):
 					if(event.key == pygame.K_w):
 						self.Move_up = False
 					if(event.key == pygame.K_s):
@@ -247,14 +246,69 @@ class Blank(pygame.sprite.Sprite):
 			self.last_time = current_time
 
 
+class GameOVER(pygame.sprite.Sprite):
+	def __init__(self):
+		pygame.sprite.Sprite.__init__(self)
+		self.topleft = 0, 0
+		self.frame = 0
+		self.old_frame = -1
+		self.frame_width = 1
+		self.frame_height = 1
+		self.width = 1
+		self.height = 1
+		self.first_frame = 0
+		self.last_frame = 0
+		self.columns = 1
+		self.last_time = 0
+		self.master_image = pygame.image.load("gameover.png")
+		self.rect = Rect(40, 0, 600, 480)
+		self.mask = pygame.mask.from_surface(self.master_image)
+		self.frame_width = 600
+		self.frame_height = 480
+		self.width = 600
+		self.height = 480
+		self.columns = 3
+		rect = self.master_image.get_rect()
+		self.last_frame = (rect.width // 600) * (rect.height // 480) - 1
+
+	def update(self, current_time, rate=200):
+		if current_time > self.last_time + rate:
+			self.frame += 1
+			if self.frame > self.last_frame:
+				self.frame = self.first_frame
+			self.last_time = current_time
+
+		if self.frame != self.old_frame:
+			frame_x = (self.frame % self.columns) * self.frame_width
+			frame_y = (self.frame // self.columns) * self.frame_height
+			rect = Rect(frame_x, frame_y, self.frame_width, self.frame_height)
+			self.image = self.master_image.subsurface(rect)
+			self.old_frame = self.frame
+
+
 # 地图墙类
 class Wall(pygame.sprite.Sprite):
 	def __init__(self, color, place):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.Surface([place[2], place[3]])
 		self.image.fill(color)
-		self.rect = pygame.draw.rect(self.image, color, place)
+		self.rect = Rect(place[0], place[1], place[2], place[3])
 		self.mask = pygame.mask.from_surface(self.image)
+
+	def update(self, current_time, rate=200):
+		if current_time > self.last_time + rate:
+			self.frame += 1
+			if self.frame > self.last_frame:
+				self.frame = self.first_frame
+			self.last_time = current_time
+
+		if self.frame != self.old_frame:
+			frame_x = (self.frame % self.columns) * self.frame_width
+			frame_y = (self.frame // self.columns) * self.frame_height
+			rect = Rect(frame_x, frame_y, self.frame_width, self.frame_height)
+			self.image = self.master_image.subsurface(rect)
+			self.old_frame = self.frame
+		self.rect = Rect(self.P_x, self.P_y, self.frame_width, self.frame_height)  # 位置刷新
 
 
 # 第一卦地图
@@ -324,8 +378,23 @@ class Cloud(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = pygame.Surface([place[2], place[3]])
 		self.image.fill(color)
-		self.rect = pygame.draw.rect(self.image, color, place)
+		self.rect = Rect(place[0], place[1], place[2], place[3])
 		self.mask = pygame.mask.from_surface(self.image)
+
+	def update(self, current_time, rate=200):
+		if current_time > self.last_time + rate:
+			self.frame += 1
+			if self.frame > self.last_frame:
+				self.frame = self.first_frame
+			self.last_time = current_time
+
+		if self.frame != self.old_frame:
+			frame_x = (self.frame % self.columns) * self.frame_width
+			frame_y = (self.frame // self.columns) * self.frame_height
+			rect = Rect(frame_x, frame_y, self.frame_width, self.frame_height)
+			self.image = self.master_image.subsurface(rect)
+			self.old_frame = self.frame
+		self.rect = Rect(self.P_x, self.P_y, self.frame_width, self.frame_height)  # 位置刷新
 
 
 # 第二卦地图
@@ -336,9 +405,9 @@ class Map2:
 		self.cloudgroup1.add(Cloud((225, 225, 225), (200, 260, 80, 40)))
 		self.cloudgroup1.add(Cloud((225, 225, 225), (260, 300, 60, 40)))
 		self.cloudgroup2 = pygame.sprite.Group()
-		self.cloudgroup1.add(Cloud((225, 225, 225), (400, 220, 60, 40)))
-		self.cloudgroup1.add(Cloud((225, 225, 225), (420, 180, 80, 40)))
-		self.cloudgroup1.add(Cloud((225, 225, 225), (480, 220, 60, 40)))
+		self.cloudgroup2.add(Cloud((225, 225, 225), (400, 220, 60, 40)))
+		self.cloudgroup2.add(Cloud((225, 225, 225), (420, 180, 80, 40)))
+		self.cloudgroup2.add(Cloud((225, 225, 225), (480, 220, 60, 40)))
 		self.allcloudgroup = pygame.sprite.Group()
 		self.allcloudgroup.add(self.cloudgroup1)
 		self.allcloudgroup.add(self.cloudgroup2)
@@ -393,6 +462,82 @@ class Map2:
 		return False
 
 
+class Map3:
+	def __init__(self):
+		self.cloudgroup1 = pygame.sprite.Group()
+		self.cloudgroup1.add(Cloud((225, 225, 225), (400, 340, 60, 10)))
+		self.cloudgroup1.add(Cloud((225, 225, 225), (420, 330, 60, 10)))
+		self.cloudgroup1.add(Cloud((225, 225, 225), (480, 340, 25, 10)))
+		self.cloudgroup2 = pygame.sprite.Group()
+		self.cloudgroup2.add(Cloud((225, 225, 225), (240, 300, 60, 10)))
+		self.cloudgroup2.add(Cloud((225, 225, 225), (260, 290, 60, 10)))
+		self.cloudgroup2.add(Cloud((225, 225, 225), (320, 300, 25, 10)))
+		self.cloudgroup3 = pygame.sprite.Group()
+		self.cloudgroup3.add(Cloud((225, 225, 225), (500, 250, 60, 10)))
+		self.cloudgroup3.add(Cloud((225, 225, 225), (520, 240, 60, 10)))
+		self.cloudgroup3.add(Cloud((225, 225, 225), (580, 250, 25, 10)))
+		self.cloudgroup4 = pygame.sprite.Group()
+		self.cloudgroup4.add(Cloud((225, 225, 225), (340, 210, 60, 10)))
+		self.cloudgroup4.add(Cloud((225, 225, 225), (360, 200, 60, 10)))
+		self.cloudgroup4.add(Cloud((225, 225, 225), (420, 210, 25, 10)))
+		self.cloudgroup5 = pygame.sprite.Group()
+		self.cloudgroup5.add(Cloud((225, 225, 225), (115, 180, 60, 10)))
+		self.cloudgroup5.add(Cloud((225, 225, 225), (135, 170, 60, 10)))
+		self.cloudgroup5.add(Cloud((225, 225, 225), (195, 180, 25, 10)))
+		self.cloudgroup6 = pygame.sprite.Group()
+		self.cloudgroup6.add(Cloud((225, 225, 225), (520, 150, 60, 10)))
+		self.cloudgroup6.add(Cloud((225, 225, 225), (540, 140, 60, 10)))
+		self.cloudgroup6.add(Cloud((225, 225, 225), (600, 150, 25, 10)))
+		self.cloudgroup7 = pygame.sprite.Group()
+		self.cloudgroup7.add(Cloud((225, 225, 225), (240, 100, 60, 10)))
+		self.cloudgroup7.add(Cloud((225, 225, 225), (260, 90, 60, 10)))
+		self.cloudgroup7.add(Cloud((225, 225, 225), (320, 100, 25, 10)))
+		self.cloudgroup8 = pygame.sprite.Group()
+		self.cloudgroup8.add(Cloud((225, 225, 225), (300, 60, 60, 10)))
+		self.cloudgroup8.add(Cloud((225, 225, 225), (320, 50, 60, 10)))
+		self.cloudgroup8.add(Cloud((225, 225, 225), (380, 60, 25, 10)))
+		self.allcloudgroup = pygame.sprite.Group()
+		self.allcloudgroup.add(self.cloudgroup1)
+		self.allcloudgroup.add(self.cloudgroup2)
+		self.allcloudgroup.add(self.cloudgroup3)
+		self.allcloudgroup.add(self.cloudgroup4)
+		self.allcloudgroup.add(self.cloudgroup5)
+		self.allcloudgroup.add(self.cloudgroup6)
+		self.allcloudgroup.add(self.cloudgroup7)
+		self.allcloudgroup.add(self.cloudgroup8)
+		self.wallgroup = pygame.sprite.Group()
+		self.wallgroup.add(Wall((0, 0, 0), (20, 390, 640, 30)))
+		self.wallgroup.add(Wall((139, 71, 38), (20, 400, 640, 30)))
+		self.wingroup = pygame.sprite.Group()
+		self.wingroup.add(Wall((139, 71, 38), (260, 0, 80, 25)))
+
+	# 向下障碍检测
+	def checkdown(self, x, y):
+		if(y > 332):
+			return True
+		else:
+			return False
+
+	# 向上障碍检测
+	def checkup(self, x, y):
+		if(y < 0 and (x < 260 or x > 340)):
+			return True
+		else:
+			return False
+
+	def gameovercheck(self, x, y):
+		return False
+
+
+class Map4:
+	def __init__(self):
+		self.background = pygame.sprite.Group()
+		for i in range(225):
+			self.background.add(Cloud((225, i, i), (40, (i * 480 / 450), 600, (480 / 450))))
+		for i in range(225):
+			self.background.add(Cloud((i, 225, i), (40, ((i + 225) * 480 / 450), 600, (480 / 450))))
+
+
 # 主程序
 nowpath = sys.path[0] + "\\"  # 获取当前地址
 pygame.init()  # pygame初始化
@@ -410,7 +555,8 @@ chara = Chara()  # 创建角色
 chara.load("chara.png", 48, 96, 2)
 charagroup = pygame.sprite.Group()
 charagroup.add(chara)
-
+charagroup.add(chara)
+time_passed_seconds_past = 60
 # 第一卦开始
 while (True):
 	screen.fill([30, 144, 255])
@@ -421,7 +567,7 @@ while (True):
 	time_passed = framerate.tick(30)
 
 	time_passed_seconds = time_passed / 10.0
-	if(time_passed_seconds > 60):
+	if(time_passed_seconds > 80):
 		time_passed_seconds = time_passed_seconds_past
 	time_passed_seconds_past = time_passed_seconds
 	ticks = pygame.time.get_ticks()
@@ -483,6 +629,7 @@ while (True):
 			pygame.display.update()
 	if(chara.P_x > 580 and (chara.P_y > 140 and chara.P_y < 180)):
 		break
+	break  # TODO: 调试用
 	pygame.display.update()
 
 # 第二卦开始
@@ -522,13 +669,93 @@ while True:
 	blankgroup.draw(screen)
 	if(chara.P_y < 20 and (chara.P_x > 450 and chara.P_x < 560)):
 		break
+	break  # TODO: 调试用
 	pygame.display.update()
 
+Stage = 3
+map = Map3()
+chara.load("chara3.png", 48, 48, 2)
+chara.P_x = screen.get_width() - 50 - 48
+chara.P_y = 390 - 48
+chara.Move_down = False
+chara.Move_up = False
+chara.Move_left = False
+chara.Move_right = False
+chara.speed = 2
+charagroup = pygame.sprite.Group()
+charagroup.add(chara)
 while True:
 	screen.fill([30, 144, 255])
 	my_font = pygame.font.Font("font.ttf", 25)
 	text_screen = my_font.render("0 0 0 0 0 0", False, (0, 0, 0))
 	screen.blit(text_screen, (260, 450))
+	map.wallgroup.draw(screen)
+	map.wingroup.draw(screen)
+	map.allcloudgroup.draw(screen)
+	time_passed = framerate.tick(30)
+	time_passed_seconds = time_passed / 10.0
+	if(time_passed_seconds > 60):
+		time_passed_seconds = time_passed_seconds_past
+	time_passed_seconds_past = time_passed_seconds
+	ticks = pygame.time.get_ticks()
+
+	chara.control(
+		map.checkup(chara.P_x, chara.P_y),
+		map.checkdown(chara.P_x, chara.P_y),
+		False,
+		False,
+		False)
+
+	chara.move()
+	charagroup.update(ticks)
+	charagroup.draw(screen)
+
+	attack = None
+	attack = pygame.sprite.spritecollideany(chara, map.allcloudgroup)
+	if (attack):
+		gameOver = GameOVER()
+		gameovergroup = pygame.sprite.Group()
+		gameovergroup.add(gameOver)
+		while (True):
+			chara.Move_down = False
+			chara.Move_up = False
+			chara.Move_left = False
+			chara.Move_right = False
+			backtogame = False
+			screen.fill([30, 144, 255])
+			ticks = pygame.time.get_ticks()
+			gameovergroup.update(ticks)
+			gameovergroup.draw(screen)
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					exit()
+				if(event.type == pygame.KEYDOWN):
+					if(event.key == pygame.K_SPACE):
+						backtogame = True
+			if backtogame:
+				chara.P_x = screen.get_width() - 50 - 48
+				chara.P_y = 390 - 48
+				chara.speed = 2
+				break
+			pygame.display.update()
+
+	if(chara.P_y < -40):
+		break
+	blankgroup.update(ticks)
+	blankgroup.draw(screen)
+	for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				exit()
+	charagroup.update(ticks)
+	charagroup.draw(screen)
+	pygame.display.update()
+
+map = Map4()
+
+map.background.draw(screen)
+while (True):
+	screen.fill([30, 144, 255])
+	map.background.draw(screen)
 	for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				exit()
