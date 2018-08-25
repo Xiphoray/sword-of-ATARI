@@ -541,6 +541,9 @@ class Map4:
 # 主程序
 nowpath = sys.path[0] + "\\"  # 获取当前地址
 pygame.init()  # pygame初始化
+pygame.mixer.init()
+pygame.mixer.music.load("bgm.mp3")
+
 screen = pygame.display.set_mode((680, 480), 0, 32)
 screen.fill([30, 144, 255])  # 创建屏幕
 Stage = 1  # 关卡初始化
@@ -565,7 +568,8 @@ while (True):
 	screen.blit(text_screen, (260, 450))
 	map.wallgroup.draw(screen)
 	time_passed = framerate.tick(30)
-
+	if (not pygame.mixer.music.get_busy()):
+			pygame.mixer.music.play()
 	time_passed_seconds = time_passed / 10.0
 	if(time_passed_seconds > 80):
 		time_passed_seconds = time_passed_seconds_past
@@ -653,7 +657,8 @@ while True:
 		time_passed_seconds = time_passed_seconds_past
 	time_passed_seconds_past = time_passed_seconds
 	ticks = pygame.time.get_ticks()
-
+	if (not pygame.mixer.music.get_busy()):
+			pygame.mixer.music.play()
 	chara.control(
 		False,
 		False,
@@ -696,7 +701,8 @@ while True:
 		time_passed_seconds = time_passed_seconds_past
 	time_passed_seconds_past = time_passed_seconds
 	ticks = pygame.time.get_ticks()
-
+	if (not pygame.mixer.music.get_busy()):
+		pygame.mixer.music.play()
 	chara.control(
 		map.checkup(chara.P_x, chara.P_y),
 		map.checkdown(chara.P_x, chara.P_y),
